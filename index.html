@@ -117,6 +117,8 @@
     ).addTo(map);
     L.control.scale().addTo(map);
 
+    var geojson;
+
     function onMarkerClick(e) {
       var popup = e.target.getPopup();
       var content = popup.getContent();
@@ -132,18 +134,39 @@
       return color;
     }
 
-    function loadGeoJson(map) {
-      // Uses the following extension:
-      // https://github.com/calvinmetcalf/leaflet-ajax
-      var geojsonLayer = new L.GeoJSON.AJAX("districts.geojson");
-      geojsonLayer.onEachFeature((feature, layer) => {
-        console.log(feature, layer);
+    function highlightFeature(e) {
+      var layer = e.target;
+
+      layer.setStyle({
+          weight: 5,
+          color: '#F00',
+          dashArray: '',
+          fillOpacity: 0.3
       });
 
-      //console.log(geojsonLayer);
-      //geojsonLayer.on('click', console.log("click"));
-      geojsonLayer.addTo(map);
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+          layer.bringToFront();
+      }
     }
+
+    function resetHighlight(e) {
+      geojson.resetStyle(e.target);
+    }
+
+    function zoomToFeature(e) {
+      map.fitBounds(e.target.getBounds());
+    }
+
+    function onEachFeature(feature, layer) {
+      console.log("onEach")
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+      });
+    }
+
+    function styleDistrict(feature) { return { color: getRandomColor() } };
 
     function manualGeoJsonLoad(map) {
       var myStyle = {
@@ -151,9 +174,13 @@
         "weight": 5,
         "opacity": 0.65
       };
-      L.geoJSON(districts.features, {style: function(feature) {
-        return { color: getRandomColor() };
-      }}).addTo(map);
+
+      const options = {
+          style: styleDistrict,
+          onEachFeature: onEachFeature
+      }
+
+      geojson = L.geoJSON(districts.features, options).addTo(map);
     }
 
 
