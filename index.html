@@ -109,12 +109,13 @@
 
     const accessToken = 'QGL5193opsh2qwJCN6b4txetJA13AW1d3ZZ6nhezliTIDuvijFgpXsAHxsXsN8lt';
     const map = L.map('map').setView([-23.543773, -46.625290], 13);
-    L.tileLayer(
+    const baseLayer = L.tileLayer(
       `https://tile.jawg.io/jawg-matrix/{z}/{x}/{y}.png?access-token=${accessToken}`, {
       attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank" class="jawg-attrib">&copy; <b>Jawg</b>Maps</a> | <a href="https://www.openstreetmap.org/copyright" title="OpenStreetMap is open data licensed under ODbL" target="_blank" class="osm-attrib">&copy; OSM contributors</a>',
       maxZoom: 18
     }
-    ).addTo(map);
+    )
+    baseLayer.addTo(map);
     L.control.scale().addTo(map);
 
     var geojson;
@@ -180,19 +181,37 @@
           onEachFeature: onEachFeature
       }
 
-      geojson = L.geoJSON(districts.features, options).addTo(map);
+      geojson = L.geoJSON(districts.features, options);
+      geojson.addTo(map);
     }
 
 
     // Morals & Nature HQ
-    const marker = L.marker([-23.543773, -46.625290], { icon: violetIcon, title: "Morals & Nature" }).addTo(map);
-    marker.bindPopup("Morals & Nature");
-    marker.on('click', onMarkerClick);
+    const mAndNMarker = L.marker([-23.543773, -46.625290], { icon: violetIcon, title: "Morals & Nature" })
+    mAndNMarker.bindPopup("Morals & Nature");
+
+    const markers = [ mAndNMarker ];
+    markers.forEach(element => {
+      element.on('click', onMarkerClick);
+    });
+
+    const markerLayer = L.layerGroup(markers);
+
+
 
     //loadGeoJson(map);
     manualGeoJsonLoad(map);
 
-    console.log(map);
+    var bases = {
+      "Base": baseLayer
+    }
+
+    var overlays = {
+      "Districts": geojson,
+      "Markers": markerLayer
+    }
+
+    L.control.layers(bases, overlays).addTo(map);
 
   </script>
 </body>
