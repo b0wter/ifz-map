@@ -44,8 +44,9 @@ function resetHighlight(e) {
 
 function createZoomToFeatureFor(feature) {
     return function(e) {
+        console.log("zoom", feature)
         map.fitBounds(e.target.getBounds());
-        highLightControl.update(feature.props);
+        highLightControl.update(feature.properties);
     }
 }
 
@@ -79,7 +80,7 @@ function manualGeoJsonLoad(map) {
         style: function (feature) {
             return styleDistrict(feature);
         },
-        onEachFeature: function (feature, layer) { console.log(feature, layer); onEachFeature(feature, layer) }
+        onEachFeature: function (feature, layer) { onEachFeature(feature, layer) }
     }
 
     geojson = L.geoJSON(districts.features, options);
