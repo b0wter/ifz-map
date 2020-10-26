@@ -37,6 +37,14 @@ function initialize() {
 	    ext: 'png'
     });
 
+    var baseLayerTerrainBackground = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
+	    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	    subdomains: 'abcd',
+	    minZoom: 10,
+	    maxZoom: 18,
+	    ext: 'png'
+    });
+
     var baseLayerForeground = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
 	    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 	    subdomains: 'abcd',
@@ -50,12 +58,13 @@ function initialize() {
      * This layer is currently not in use because it does not offer enough flexibility.
      * There is no way to customize the visibility of back/foreground.
      * 
-    const cyberPunktBaseLayer = L.tileLayer(
+     */
+    const baseLayerCyberpunk = L.tileLayer(
         `https://tile.jawg.io/jawg-matrix/{z}/{x}/{y}.png?access-token=${accessToken}`, {
         attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank" class="jawg-attrib">&copy; <b>Jawg</b>Maps</a> | <a href="https://www.openstreetmap.org/copyright" title="OpenStreetMap is open data licensed under ODbL" target="_blank" class="osm-attrib">&copy; OSM contributors</a>',
         maxZoom: 18
     });
-    */
+    
 
     L.control.scale().addTo(map);
 
@@ -95,7 +104,9 @@ function initialize() {
     //
     var bases = {
         "Toner": baseLayerBackground,
-        "Dark": baseLayerDarkBackground
+        "Dark": baseLayerDarkBackground,
+        "Terrain": baseLayerTerrainBackground,
+        "Cyberpunk": baseLayerCyberpunk
     }
 
     var overlays = {
