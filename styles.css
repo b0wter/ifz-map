@@ -3,3 +3,9 @@
     padding: 1em;
     min-width: 210px;
 }
+
+.poi-marker {
+    position: absolute;
+    width: 120px;
+    text-align: center;
+}

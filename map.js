@@ -44,7 +44,6 @@ function resetHighlight(e) {
 
 function createZoomToFeatureFor(feature) {
     return function(e) {
-        console.log("zoom", feature)
         map.fitBounds(e.target.getBounds());
         highLightControl.update(feature.properties);
     }
@@ -83,7 +82,7 @@ function manualGeoJsonLoad(map) {
         onEachFeature: function (feature, layer) { onEachFeature(feature, layer) }
     }
 
-    geojson = L.geoJSON(districts.features, options);
+    geojson = L.geoJSON(GEOJson_districts.features, options);
     geojson.addTo(map);
 }
 
@@ -120,15 +119,20 @@ function initialize() {
     L.control.scale().addTo(map);
 
     // Morals & Nature HQ
-    const mAndNMarker = L.marker([-23.543773, -46.625290], { icon: violetIcon, title: "Morals & Nature" })
-    mAndNMarker.bindPopup("Morals & Nature");
+    const mAndNMarker = L.marker([-23.543773, -46.625290], { icon: violetIcon, title: "Morals & Nature", opacity: 10 })
+    mAndNMarker.bindTooltip("Morals & Nature", { permanent: true, className: "poi-marker", offset: [0, 0], direction:'center',});
 
     const markers = [mAndNMarker];
     markers.forEach(element => {
         element.on('click', onMarkerClick);
     });
 
+    const districtLabels = L.geoJSON(GEOJson_districtLabels.features);
+
+    const mesoRegion = L.geoJSON(GEOJson_mesoRegion.features);
+
     const markerLayer = L.layerGroup(markers);
+    //const districtLabelsLayer = L.layerGroup(districtLabels);
 
     //loadGeoJson(map);
     manualGeoJsonLoad(map);
@@ -139,6 +143,8 @@ function initialize() {
 
     var overlays = {
         "Districts": geojson,
+        "District Labels": districtLabels,
+        "Meso Region": mesoRegion,
         "Markers": markerLayer
     }
 
