@@ -10,6 +10,26 @@
     text-align: center;
 }
 
+.district-label {
+    background-color: transparent;
+    border: unset;
+    font-size: 2em;
+    box-shadow: unset;
+    position: absolute;
+    text-align: center;
+    color: yellow !important;
+}
+
 .leaflet-container {
     background-color: #1A1A1A;
+}
+
+.stroked-text 
+{
+    color: white;
+    text-shadow: 
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
 }

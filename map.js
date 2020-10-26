@@ -19,12 +19,44 @@ function initialize() {
     // Create the basic map.
     //
     map = L.map('map').setView([-23.543773, -46.625290], 13);
-    const baseLayer = L.tileLayer(
+
+    var baseLayerBackground = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}{r}.{ext}', {
+	    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	    subdomains: 'abcd',
+	    minZoom: 10,
+	    maxZoom: 18,
+	    ext: 'png'
+    });
+    baseLayerBackground.addTo(map);
+
+    var baseLayerDarkBackground = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}{r}.{ext}', {
+	    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	    subdomains: 'abcd',
+	    minZoom: 10,
+	    maxZoom: 18,
+	    ext: 'png'
+    });
+
+    var baseLayerForeground = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
+	    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	    subdomains: 'abcd',
+	    minZoom: 10,
+	    maxZoom: 18,
+        ext: 'png'
+    });
+    baseLayerForeground.addTo(map);
+
+    /*
+     * This layer is currently not in use because it does not offer enough flexibility.
+     * There is no way to customize the visibility of back/foreground.
+     * 
+    const cyberPunktBaseLayer = L.tileLayer(
         `https://tile.jawg.io/jawg-matrix/{z}/{x}/{y}.png?access-token=${accessToken}`, {
         attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank" class="jawg-attrib">&copy; <b>Jawg</b>Maps</a> | <a href="https://www.openstreetmap.org/copyright" title="OpenStreetMap is open data licensed under ODbL" target="_blank" class="osm-attrib">&copy; OSM contributors</a>',
         maxZoom: 18
     });
-    baseLayer.addTo(map);
+    */
+
     L.control.scale().addTo(map);
 
     //
@@ -42,39 +74,36 @@ function initialize() {
     }
     highLightControl.addTo(map);
 
-    /*
-    // Morals & Nature HQ
-    const mAndNMarker = L.marker([-23.543773, -46.625290], { icon: violetIcon, title: "Morals & Nature", opacity: 10 })
-    mAndNMarker.bindTooltip("Morals & Nature", { permanent: true, className: "poi-marker", offset: [0, 0], direction: 'center', });
-
-    const markers = [mAndNMarker];
-    markers.forEach(element => {
-        element.on('click', onMarkerClick);
-    });
-
-    const markerLayer = L.layerGroup(markers);
-    */
-
-
     //
     // Instantiate the optional content.
     //
     const districts = new Districts(map, GEOJson_districts);
     const districtLabels = new DistrictLabels(map, GEOJson_districtLabels);
     const mesoRegion = new MesoRegion(map, GEOJson_mesoRegion.features);
+    const markers = new Markers(map, undefined);
+
+    //
+    // Zoom-level-dependency
+    //
+    map.on('zoomend', function() {
+        const currentZoomLevel = map.getZoom();
+        console.log(currentZoomLevel);
+    });
 
     //
     // Add the optional content to the map.
     //
     var bases = {
-        "Base": baseLayer
+        "Toner": baseLayerBackground,
+        "Dark": baseLayerDarkBackground
     }
 
     var overlays = {
+        "Labels": baseLayerForeground,
         "Districts": districts.leafletObject,
         "District Labels": districtLabels.leafletObject,
         "Meso Region": mesoRegion.leafletObject,
-        //"Markers": markerLayer
+        "Markers": markers.leafletObject
     }
 
     L.control.layers(bases, overlays).addTo(map);

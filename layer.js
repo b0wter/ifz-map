@@ -8,4 +8,14 @@ class Layer {
     { 
         throw "You have to implement the `leafleftObject` getter in the extended class.";
     }
+
+    get minZoom() 
+    { 
+        return 0; 
+    }
+
+    get maxZoom() 
+    { 
+        return 22; 
+    }
 }
