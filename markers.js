@@ -1,8 +1,8 @@
 class Markers extends Layer
 {
-    constructor(map, features)
+    constructor(map, features, createHighlightText)
     {
-        super();
+        super(map, features, createHighlightText);
         const mAndNMarker = L.marker([-23.543773, -46.625290], { icon: violetIcon, title: "Morals & Nature", opacity: 10 })
         mAndNMarker.bindTooltip("Morals & Nature", { permanent: true, className: "poi-marker", offset: [0, 0], direction: 'center', });
 

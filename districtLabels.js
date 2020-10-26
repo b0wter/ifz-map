@@ -1,8 +1,8 @@
 class DistrictLabels extends Layer 
 {
-    constructor(map, features) 
+    constructor(map, features, createHighlightText) 
     {
-        super();
+        super(map, features, createHighlightText);
         this.geoJSON = L.geoJSON(features, { pointToLayer: this.styleMarkers.bind(this) });
         this.geoJSON.minZoom = 9;
         this.geoJSON.maxZoom = 9;

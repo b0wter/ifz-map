@@ -1,21 +1,13 @@
 class Layer {
-    constructor(createHightlightText)
+    constructor(map, features, createHighlightText)
     {
-        this.createHightlightText = createHightlightText;
+        this.map = map;
+        this.features = features;
+        this.createHighlightText = createHighlightText;
     }
 
     get leafletObject() 
     { 
         throw "You have to implement the `leafleftObject` getter in the extended class.";
-    }
-
-    get minZoom() 
-    { 
-        return 0; 
-    }
-
-    get maxZoom() 
-    { 
-        return 22; 
     }
 }

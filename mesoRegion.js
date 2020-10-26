@@ -1,8 +1,8 @@
 class MesoRegion extends Layer 
 {    
-    constructor(map, features) 
+    constructor(map, features, createHighlightText) 
     {
-        super();
+        super(map, features, createHighlightText);
         this.geoJSON = L.geoJSON(features);
     }
 

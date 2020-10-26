@@ -4,10 +4,8 @@ class Districts extends Layer {
      * @param {*} map LeafletJS map object
      * @param {*} features GEOJson features
      */
-    constructor(map, features) {
-        super();
-        this.map = map;
-        this.features = features;
+    constructor(map, features, createHighlightText) {
+        super(map, features, createHighlightText);
         this.featureColors = { };
         this.geoJSON = this.manualGeoJsonLoad(map);
     }
@@ -27,7 +25,7 @@ class Districts extends Layer {
     }
 
     createHighlighterFor(feature) {
-        return function (e) {
+        return (function (e) {
             var layer = e.target;
 
             layer.setStyle({
@@ -40,9 +38,10 @@ class Districts extends Layer {
             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                 layer.bringToFront();
             }
-
-            highLightControl.update(feature.properties);
-        }
+            
+            const text = this.highlightTooltipText(feature.properties); //highLightControl.update(feature.properties);
+            this.createHighlightText(text);
+        }).bind(this)
     }
 
     resetHighlight(e) {
@@ -63,7 +62,7 @@ class Districts extends Layer {
 
     onEachFeature(feature, layer) {
         layer.on({
-            mouseover: this.createHighlighterFor(feature),
+            mouseover: this.createHighlighterFor(feature).bind(this),
             mouseout: this.resetHighlight.bind(this),
             click: this.createZoomToFeatureFor(feature)
         });
