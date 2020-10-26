@@ -39,7 +39,7 @@ class Districts extends Layer {
                 layer.bringToFront();
             }
             
-            const text = this.highlightTooltipText(feature.properties); //highLightControl.update(feature.properties);
+            const text = this.highlightTooltipText(feature.properties); 
             this.createHighlightText(text);
         }).bind(this)
     }
@@ -56,7 +56,8 @@ class Districts extends Layer {
     createZoomToFeatureFor(feature) {
         return function (e) {
             map.fitBounds(e.target.getBounds());
-            highLightControl.update(feature.properties);
+            const text = this.highlightTooltipText(feature.properties); 
+            this.createHighlightText(text);
         }
     }
 
@@ -64,7 +65,7 @@ class Districts extends Layer {
         layer.on({
             mouseover: this.createHighlighterFor(feature).bind(this),
             mouseout: this.resetHighlight.bind(this),
-            click: this.createZoomToFeatureFor(feature)
+            click: this.createZoomToFeatureFor(feature).bind(this)
         });
     }
 
