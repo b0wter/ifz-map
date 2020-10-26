@@ -9,106 +9,15 @@ function onMarkerClick(e) {
     console.log(content);
 }
 
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
+function highlightTooltipText(props) {
 
-function createHighlighterFor(feature) {
-    return function (e) {
-        var layer = e.target;
-
-        layer.setStyle({
-            weight: 5,
-            color: '#F00',
-            dashArray: '',
-            fillOpacity: 0.3
-        });
-
-        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-            layer.bringToFront();
-        }
-
-        highLightControl.update(feature.properties);
-    }
-}
-
-function resetHighlight(e) {
-    geojson.resetStyle(e.target);
-    highLightControl.update();
-}
-
-function createZoomToFeatureFor(feature) {
-    return function(e) {
-        map.fitBounds(e.target.getBounds());
-        highLightControl.update(feature.properties);
-    }
-}
-
-function onEachFeature(feature, layer) {
-    layer.on({
-        mouseover: createHighlighterFor(feature),
-        mouseout: resetHighlight,
-        click: createZoomToFeatureFor(feature)
-    });
-}
-
-const featureColors = {}
-function styleDistrict(feature) {
-    const id = feature.properties.id
-    let color = featureColors[id]
-    if (!featureColors[id]) {
-        color = getRandomColor()
-    }
-    featureColors[id] = color
-    return { color: color }
-};
-
-function manualGeoJsonLoad(map) {
-    var myStyle = {
-        "color": "#ff7800",
-        "weight": 5,
-        "opacity": 0.65
-    };
-
-    const options = {
-        style: function (feature) {
-            return styleDistrict(feature);
-        },
-        onEachFeature: function (feature, layer) { onEachFeature(feature, layer) }
-    }
-
-    geojson = L.geoJSON(GEOJson_districts.features, options);
-    geojson.addTo(map);
-}
-
-function highlightTooltipText(props)
-{
-    if(props === undefined)
-        return "<h2>No selection</h2>";
-    const totalPopulation = (props.pop_2010 * 2 / 10000).toFixed(1);
-    const populationDensity = (props.pop_density_2010 * 2 / 10000).toFixed(1);
-    const area = props.area;
-    const wealth = (props.budget_2015 / 1000000).toFixed(0);
-    const wealthPerPerson = ((props.budget_2015) / (props.pop_2010 * 2)).toFixed(2);
-    return `
-        <h2>${props.name}</h2>
-        <p>
-        Total population: ${totalPopulation} K<br>
-        Population density: ${populationDensity} K/km²<br>
-        Area: ${area} km²<br>
-        Wealth: ${wealth} Mio. R$<br>
-        Wealth p.P: ${wealthPerPerson} R$/p.P.<br>
-        </p>
-
-    `;
 }
 
 function initialize() {
+
+    //
+    // Create the basic map.
+    //
     map = L.map('map').setView([-23.543773, -46.625290], 13);
     const baseLayer = L.tileLayer(
         `https://tile.jawg.io/jawg-matrix/{z}/{x}/{y}.png?access-token=${accessToken}`, {
@@ -118,38 +27,9 @@ function initialize() {
     baseLayer.addTo(map);
     L.control.scale().addTo(map);
 
-    // Morals & Nature HQ
-    const mAndNMarker = L.marker([-23.543773, -46.625290], { icon: violetIcon, title: "Morals & Nature", opacity: 10 })
-    mAndNMarker.bindTooltip("Morals & Nature", { permanent: true, className: "poi-marker", offset: [0, 0], direction:'center',});
-
-    const markers = [mAndNMarker];
-    markers.forEach(element => {
-        element.on('click', onMarkerClick);
-    });
-
-    const districtLabels = L.geoJSON(GEOJson_districtLabels.features);
-
-    const mesoRegion = L.geoJSON(GEOJson_mesoRegion.features);
-
-    const markerLayer = L.layerGroup(markers);
-    //const districtLabelsLayer = L.layerGroup(districtLabels);
-
-    //loadGeoJson(map);
-    manualGeoJsonLoad(map);
-
-    var bases = {
-        "Base": baseLayer
-    }
-
-    var overlays = {
-        "Districts": geojson,
-        "District Labels": districtLabels,
-        "Meso Region": mesoRegion,
-        "Markers": markerLayer
-    }
-
-    L.control.layers(bases, overlays).addTo(map);
-
+    //
+    // Add a div to show details for the current selection.
+    //
     highLightControl = L.control();
     highLightControl.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'info');
@@ -161,4 +41,42 @@ function initialize() {
         this._div.innerHTML = highlightTooltipText(props);
     }
     highLightControl.addTo(map);
+
+    /*
+    // Morals & Nature HQ
+    const mAndNMarker = L.marker([-23.543773, -46.625290], { icon: violetIcon, title: "Morals & Nature", opacity: 10 })
+    mAndNMarker.bindTooltip("Morals & Nature", { permanent: true, className: "poi-marker", offset: [0, 0], direction: 'center', });
+
+    const markers = [mAndNMarker];
+    markers.forEach(element => {
+        element.on('click', onMarkerClick);
+    });
+
+    const markerLayer = L.layerGroup(markers);
+    */
+
+
+    //
+    // Instantiate the optional content.
+    //
+    const districts = new Districts(map, GEOJson_districts);
+    const districtLabels = new DistrictLabels(map, GEOJson_districtLabels);
+    const mesoRegion = new MesoRegion(map, GEOJson_mesoRegion.features);
+
+    //
+    // Add the optional content to the map.
+    //
+    var bases = {
+        "Base": baseLayer
+    }
+
+    var overlays = {
+        "Districts": districts.leafletObject,
+        "District Labels": districtLabels.leafletObject,
+        "Meso Region": mesoRegion.leafletObject,
+        //"Markers": markerLayer
+    }
+
+    L.control.layers(bases, overlays).addTo(map);
+
 }
